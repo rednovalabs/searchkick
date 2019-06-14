@@ -17,10 +17,14 @@ module Searchkick
       if items.any?
         response = Searchkick.client.bulk(body: items)
         if response["errors"]
-          first_with_error = response["items"].map do |item|
+          item_responses = response["items"].map do |item|
             (item["index"] || item["delete"] || item["update"])
-          end.find { |item| item["error"] }
-          raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
+          end
+          failures, successes = item_responses.partition { |item| item["error"] }
+          first_with_error = failures.first
+          error = Searchkick::ImportError.new "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
+          error.failures = failures
+          raise error
         end
       end
     end
