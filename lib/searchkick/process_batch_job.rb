@@ -18,6 +18,11 @@ module Searchkick
         Searchkick.callbacks(:bulk) do
           index.bulk_index(records) if records.any?
           index.bulk_delete(delete_records) if delete_records.any?
+
+          if flipper_feature_enabled?(:flipper_fms_enable_shipping_es7)
+            Er::Client.bulk_index(class_name, records)
+            ER::Client.bulk_delete(class_name, delete_records)
+          end
         end
       end
     end
