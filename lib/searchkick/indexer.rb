@@ -17,6 +17,11 @@ module Searchkick
       return if items.none?
 
       response = Searchkick.client.bulk(body: items)
+
+      if Flipper.new(Flipper::Adapters::ActiveRecord.new).enabled?(:flipper_fms_enable_shipping_es7)
+        Er::Client.new.bulk_index(items)
+      end
+
       raise_bulk_indexing_exception!(response) if response['errors']
     end
 
