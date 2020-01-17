@@ -23,7 +23,7 @@ module Searchkick
 
       Er::Client.new.bulk_index(items) if enable_shipping_es7
 
-      raise_bulk_indexing_exception!(response) if (response['errors'] && !disable_shipping_es2)
+      raise_bulk_indexing_exception!(response) if (!disable_shipping_es2 && response['errors'])
     end
 
     private
