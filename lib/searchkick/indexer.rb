@@ -16,14 +16,9 @@ module Searchkick
       reset_queue!
       return if items.none?
 
-      disable_shipping_es2 = Flipper.new(Flipper::Adapters::ActiveRecord.new).enabled?(:flipper_fms_disable_shipping_es2)
-      enable_shipping_es7 = Flipper.new(Flipper::Adapters::ActiveRecord.new).enabled?(:flipper_fms_enable_shipping_es7)
+      Er::Client.new.bulk_index(items)
+      
 
-      response = Searchkick.client.bulk(body: items) if !disable_shipping_es2
-
-      Er::Client.new.bulk_index(items) if enable_shipping_es7
-
-      raise_bulk_indexing_exception!(response) if (!disable_shipping_es2 && response['errors'])
     end
 
     private
